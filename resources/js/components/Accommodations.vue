@@ -134,7 +134,7 @@ export default {
 	mounted() {
 		const self = this;
 		
-		axios.get('/api/options').then(({data})=>{
+		axios.get('api/options').then(({data})=>{
 			data['Accommodation suppliers'].forEach(function(item){
 				self.options__acc.push({'value':item.o_id,'text':item.o_name}); 
 			});
@@ -158,7 +158,7 @@ export default {
 		Save(index){
 			const item = this.items[index];
 			item.loading = true;
-			axios.post('/api/save', {item}).then(({data})=>{
+			axios.post('api/save', {item}).then(({data})=>{
 				item.cost = data.cost;
 				item.price = data.price;
 				item.loading = false;
