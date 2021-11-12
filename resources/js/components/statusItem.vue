@@ -8,10 +8,13 @@
 			<div 
 				v-for="(st, index) in options__status" 
 				:key="'st'+index" 
+				
 				role="button" 
 				class="mx-1 p-3" 
 				:style="{backgroundColor:'#'+st.d_color_code}"
+				
 				@click="set(st.d_id);"
+				
 				v-b-tooltip.hover :title="st.d_name"
 			></div>
 		</div>
@@ -53,7 +56,7 @@ export default {
 			setTimeout(()=>{
 				this.$refs.dropdown.hide(true);
 			}, 50);
-		}
+		},
 	}
 }
 </script>

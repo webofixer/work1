@@ -13,52 +13,18 @@
 			  <b-th class="text-center">Price &euro;</b-th>
 			  <b-th class="text-center">Cost &euro;</b-th>
 			  <b-th class="text-center"></b-th>
-			  <b-th class="text-center"></b-th>
 			</b-tr>
 		</b-thead>
 		
 		<b-tbody>
-			<b-tr v-for="(item, index) in items" :key="'ai'+index">
-			  <b-th>
-				<status-item :color_id="item.status" @change="item.status=$event" :options__status="options__status"></status-item>
-			  </b-th>
-			  <b-th>
-				<b-form-select v-model="item.acc_id" :options="options__acc"></b-form-select>
-			  </b-th>
-			  <b-th>
-				<b-form-input v-model="item.number" type="number"></b-form-input>
-			  </b-th>
-			  <b-th>
-				<b-form-select v-model="item.room_type" :options="options__room_type"></b-form-select>
-			  </b-th>
-			  <b-th>
-				<b-input-group class="">
-				  <b-form-input v-model="item.date" type="text" placeholder="YYYY-MM-DD" autocomplete="off"></b-form-input>
-				  <b-input-group-append>
-					<b-form-datepicker v-model="item.date" button-only right size="sm"></b-form-datepicker>
-				  </b-input-group-append>
-				</b-input-group>
-			  </b-th>
-			  <b-th>
-				<b-form-input v-model="item.nights" type="number"></b-form-input>
-			  </b-th>
-			  <b-th>
-				<b-form-input v-model="item.price"></b-form-input>
-			  </b-th>
-			  <b-th>
-				<b-form-input v-model="item.cost"></b-form-input>
-			  </b-th>
-			  <b-th>
-				<b-button size="sm" @click="Save(index)" title="Save">
-					<b-icon v-if="!item.loading" icon="box-arrow-in-right" aria-hidden="true"></b-icon>
-					<b-icon v-else icon="circle-fill" animation="throb" ></b-icon>
-				</b-button>
-			  </b-th>
-			  <b-th>
-				<b-button size="sm" @click="Del(index)"><b-icon icon="trash-fill" aria-hidden="true"></b-icon></b-button>
-			  </b-th>
-			</b-tr>
-			
+			<accommodation-item 
+				v-for="(item, index) in items" 
+				:key="'ai'+index" 
+				:item="item" :index="index" 
+				:options="{options__acc, options__room_type, options__status}"
+				@change="Save"
+				@remove="Del"
+				></accommodation-item>
 			<b-tr>
 			  <b-th><b-button @click="Add">Add</b-button></b-th>
 			  <b-th></b-th>
@@ -66,9 +32,8 @@
 			  <b-th></b-th>
 			  <b-th></b-th>
 			  <b-th></b-th>
-			  <b-th class="text-center">{{totalPrice|price}} &euro;</b-th>
+			  <b-th class="text-center"><div>{{totalPrice|price}} &euro;</div><div>Total GP {{totalPriceGP|price}} &euro;</div></b-th>
 			  <b-th class="text-center">{{totalCost|price}} &euro;</b-th>
-			  <b-th></b-th>
 			  <b-th></b-th>
 			</b-tr>
 		</b-tbody>
@@ -79,14 +44,12 @@
 
 <script>
 import axios from "axios";
-//import AccommodationItem from './AccommodationItem';
-import statusItem from './statusItem';
+import AccommodationItem from './AccommodationItem';
 export default {
 	name: "Accommodations",
 	props: [],
 	components: {
-		//AccommodationItem,
-		statusItem,
+		AccommodationItem,
 	},
 	data: function () {
 		return {
@@ -101,6 +64,13 @@ export default {
 		}
 	},
 	computed: {
+		totalRoom() {
+			let totalRoom = 0;
+			this.items.forEach(function(item){
+				totalRoom += parseInt(item.number?item.number:0);
+			});
+			return totalRoom;
+		},
 		totalPrice() {
 			let totalPrice = 0;
 			this.items.forEach(function(item){
@@ -115,12 +85,8 @@ export default {
 			});
 			return totalCost;
 		},
-		totalRoom() {
-			let totalRoom = 0;
-			this.items.forEach(function(item){
-				totalRoom += parseInt(item.number?item.number:0);
-			});
-			return totalRoom;
+		totalPriceGP() {
+			return this.totalPrice - this.totalCost;
 		},
 	},
 	filters: {
@@ -157,13 +123,19 @@ export default {
 		},
 		Save(index){
 			const item = this.items[index];
-			item.loading = true;
+			this.$Progress.start();
 			axios.post('api/save', {item}).then(({data})=>{
-				item.cost = data.cost;
-				item.price = data.price;
-				item.loading = false;
+				if( data.errors && data.errors.length ){
+					
+				}
+				else{
+					item.cost = data.cost;
+					item.price = data.price;
+				}
+				this.$Progress.finish();
 			}).catch(({response})=>{
-				console.error(response.data)
+				console.error(response.data);
+				this.$Progress.fail();
 			});
 		},
 	}

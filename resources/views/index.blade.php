@@ -12,6 +12,7 @@
 </head>
 <body class="">
 	<div id="app">
+		<vue-progress-bar></vue-progress-bar>
 		<div class="container">
 			<accommodations></accommodations>
 		</div>
