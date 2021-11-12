@@ -82,6 +82,9 @@ export default {
 					this.toUpdate = true;
 				}
 			}
+			if( !this.item.acc_id && !this.item.date && !this.item.nights && !this.item.number && !this.item.room_type ){
+				this.toUpdate = false;
+			}
 			if( this.toUpdate ){
 				this.$emit('change', this.index);
 			}

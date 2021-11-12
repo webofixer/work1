@@ -57430,6 +57430,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 					this.toUpdate = true;
 				}
 			}
+			if (!this.item.acc_id && !this.item.date && !this.item.nights && !this.item.number && !this.item.room_type) {
+				this.toUpdate = false;
+			}
 			if (this.toUpdate) {
 				this.$emit('change', this.index);
 			}
