@@ -104,18 +104,54 @@ export default {
 		
 		self.$Progress.start();
 		axios.get('/api/options').then(({data})=>{
-			data['Accommodation suppliers'].forEach(function(item){
-				self.options__acc.push({'value':item.o_id,'text':item.o_name}); 
-			});
-			data['dic_room_type'].forEach(function(item){
-				self.options__room_type.push({'value':item.d_id,'text':item.d_name}); 
-			});
-			self.options__status = data['dic_status'];
+			if( data.errors && data.errors.length ){
+				self.$bvToast.toast(data.errors, {
+				  title: 'Error',
+				  variant: 'danger',
+				  solid: true
+				});
+			}
+			else{
+				if( data['Accommodation suppliers'] ){
+					data['Accommodation suppliers'].forEach(function(item){
+						self.options__acc.push({'value':item.o_id,'text':item.o_name}); 
+					});
+				}
+				if( data['dic_room_type'] ){
+					data['dic_room_type'].forEach(function(item){
+						self.options__room_type.push({'value':item.d_id,'text':item.d_name}); 
+					});
+				}
+				if( data['dic_status'] ){
+					self.options__status = data['dic_status'];
+				}
+			}
 			
 			self.$Progress.finish();
-		}).catch(({response})=>{
-			console.error(response.data);
+		}).catch((error)=>{
+			if (axios.isCancel(error)) return;
+			
+			if( error.response ){
+				self.$bvToast.toast(error.response.data, {
+				  title: 'Error',
+				  variant: 'danger',
+				  solid: true
+				});
+			}
+			
 			self.$Progress.fail();
+			
+			// log
+			if (error.response) {
+				console.log(error.response.data);
+				console.log(error.response.status);
+				console.log(error.response.headers);
+			} else if (error.request) {
+				console.log(error.request);
+			} else {
+				console.log('Error', error.message);
+			}
+			console.log(error.config);
 		});
 	},
 	methods: {
@@ -156,18 +192,30 @@ export default {
 				}
 				
 				self.$Progress.finish();
-			}).catch((err)=>{
-				if (axios.isCancel(err)) return;
+			}).catch((error)=>{
+				if (axios.isCancel(error)) return;
 				
-				console.error(err);
-				
-				self.$bvToast.toast(err.response.data, {
-				  title: 'Error',
-				  variant: 'danger',
-				  solid: true
-				});
+				if( error.response ){
+					self.$bvToast.toast(error.response.data, {
+					  title: 'Error',
+					  variant: 'danger',
+					  solid: true
+					});
+				}
 				
 				self.$Progress.fail();
+				
+				// log
+				if (error.response) {
+					console.log(error.response.data);
+					console.log(error.response.status);
+					console.log(error.response.headers);
+				} else if (error.request) {
+					console.log(error.request);
+				} else {
+					console.log('Error', error.message);
+				}
+				console.log(error.config);
 			});
 		},
 	}

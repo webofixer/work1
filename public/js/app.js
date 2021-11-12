@@ -57175,20 +57175,53 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		__WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/api/options').then(function (_ref) {
 			var data = _ref.data;
 
-			data['Accommodation suppliers'].forEach(function (item) {
-				self.options__acc.push({ 'value': item.o_id, 'text': item.o_name });
-			});
-			data['dic_room_type'].forEach(function (item) {
-				self.options__room_type.push({ 'value': item.d_id, 'text': item.d_name });
-			});
-			self.options__status = data['dic_status'];
+			if (data.errors && data.errors.length) {
+				self.$bvToast.toast(data.errors, {
+					title: 'Error',
+					variant: 'danger',
+					solid: true
+				});
+			} else {
+				if (data['Accommodation suppliers']) {
+					data['Accommodation suppliers'].forEach(function (item) {
+						self.options__acc.push({ 'value': item.o_id, 'text': item.o_name });
+					});
+				}
+				if (data['dic_room_type']) {
+					data['dic_room_type'].forEach(function (item) {
+						self.options__room_type.push({ 'value': item.d_id, 'text': item.d_name });
+					});
+				}
+				if (data['dic_status']) {
+					self.options__status = data['dic_status'];
+				}
+			}
 
 			self.$Progress.finish();
-		}).catch(function (_ref2) {
-			var response = _ref2.response;
+		}).catch(function (error) {
+			if (__WEBPACK_IMPORTED_MODULE_0_axios___default.a.isCancel(error)) return;
 
-			console.error(response.data);
+			if (error.response) {
+				self.$bvToast.toast(error.response.data, {
+					title: 'Error',
+					variant: 'danger',
+					solid: true
+				});
+			}
+
 			self.$Progress.fail();
+
+			// log
+			if (error.response) {
+				console.log(error.response.data);
+				console.log(error.response.status);
+				console.log(error.response.headers);
+			} else if (error.request) {
+				console.log(error.request);
+			} else {
+				console.log('Error', error.message);
+			}
+			console.log(error.config);
 		});
 	},
 
@@ -57213,8 +57246,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			self.$bvToast.hide();
 
 			self.$Progress.start();
-			__WEBPACK_IMPORTED_MODULE_0_axios___default.a.post('/api/save', { item: item }, { cancelToken: self.cancelToken[index].token }).then(function (_ref3) {
-				var data = _ref3.data;
+			__WEBPACK_IMPORTED_MODULE_0_axios___default.a.post('/api/save', { item: item }, { cancelToken: self.cancelToken[index].token }).then(function (_ref2) {
+				var data = _ref2.data;
 
 				item.cost = '';
 				item.price = '';
@@ -57231,18 +57264,30 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 				}
 
 				self.$Progress.finish();
-			}).catch(function (err) {
-				if (__WEBPACK_IMPORTED_MODULE_0_axios___default.a.isCancel(err)) return;
+			}).catch(function (error) {
+				if (__WEBPACK_IMPORTED_MODULE_0_axios___default.a.isCancel(error)) return;
 
-				console.error(err);
-
-				self.$bvToast.toast(err.response.data, {
-					title: 'Error',
-					variant: 'danger',
-					solid: true
-				});
+				if (error.response) {
+					self.$bvToast.toast(error.response.data, {
+						title: 'Error',
+						variant: 'danger',
+						solid: true
+					});
+				}
 
 				self.$Progress.fail();
+
+				// log
+				if (error.response) {
+					console.log(error.response.data);
+					console.log(error.response.status);
+					console.log(error.response.headers);
+				} else if (error.request) {
+					console.log(error.request);
+				} else {
+					console.log('Error', error.message);
+				}
+				console.log(error.config);
 			});
 		}
 	}
