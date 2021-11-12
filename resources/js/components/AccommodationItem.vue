@@ -77,14 +77,28 @@ export default {
 	},
 	methods: {
 		changeData(){
+			const props = ['acc_id', 'date', 'nights', 'number', 'room_type'];
+			
+			// if all filled
 			if( !this.toUpdate ){
-				if( this.item.acc_id && this.item.date && this.item.nights && this.item.number && this.item.room_type ){
-					this.toUpdate = true;
-				}
+				this.toUpdate = true;
+				props.forEach((prop)=>{
+					if( !this.item[prop] ){
+						this.toUpdate = false;
+					}
+				});
 			}
-			if( !this.item.acc_id && !this.item.date && !this.item.nights && !this.item.number && !this.item.room_type ){
+			
+			// if all empty (bug when remove item)
+			if( this.toUpdate ){
 				this.toUpdate = false;
+				props.forEach((prop)=>{
+					if( this.item[prop] ){
+						this.toUpdate = true;
+					}
+				});
 			}
+			
 			if( this.toUpdate ){
 				this.$emit('change', this.index);
 			}
