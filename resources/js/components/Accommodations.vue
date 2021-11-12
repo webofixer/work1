@@ -136,6 +136,9 @@ export default {
 			}
 			self.cancelToken[index] = axios.CancelToken.source();  
 			
+			item.cost = '';
+			item.price = '';
+			
 			self.$Progress.start();
 			axios.post('/api/save', {item}, {cancelToken: self.cancelToken[index].token}).then(({data})=>{
 				if( data.errors && data.errors.length ){
