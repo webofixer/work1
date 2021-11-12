@@ -7,7 +7,7 @@
 			<b-form-select v-model="item.acc_id" :options="options.options__acc"></b-form-select>
 		  </b-th>
 		  <b-th>
-			<b-form-input v-model="item.number" type="number"></b-form-input>
+			<b-form-input v-model="item.number" type="number" min="0"></b-form-input>
 		  </b-th>
 		  <b-th>
 			<b-form-select v-model="item.room_type" :options="options.options__room_type"></b-form-select>
@@ -21,7 +21,7 @@
 			</b-input-group>
 		  </b-th>
 		  <b-th>
-			<b-form-input v-model="item.nights" type="number"></b-form-input>
+			<b-form-input v-model="item.nights" type="number" min="0"></b-form-input>
 		  </b-th>
 		  <b-th>
 			<b-form-input v-model="item.price"></b-form-input>

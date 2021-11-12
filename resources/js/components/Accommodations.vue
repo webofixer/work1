@@ -53,14 +53,16 @@ export default {
 	},
 	data: function () {
 		return {
-			newItem: {status:1992, acc_id:'', number:'', room_type:'', date:'', nights:'', price:'', cost:'', loading: false},
+			newItem: {status:1992, acc_id:'', number:'', room_type:'', date:'', nights:'', price:'', cost:''},
 			items: [
-				{status:1992, acc_id:'', number:'', room_type:'', date:'', nights:'', price:'', cost:'', loading: false},
+				{status:1992, acc_id:'', number:'', room_type:'', date:'', nights:'', price:'', cost:''},
 			],
 			
 			options__acc: [],
 			options__room_type: [],
 			options__status: [],
+			
+			cancelToken: [],
 		}
 	},
 	computed: {
@@ -100,7 +102,8 @@ export default {
 	mounted() {
 		const self = this;
 		
-		axios.get('api/options').then(({data})=>{
+		self.$Progress.start();
+		axios.get('/api/options').then(({data})=>{
 			data['Accommodation suppliers'].forEach(function(item){
 				self.options__acc.push({'value':item.o_id,'text':item.o_name}); 
 			});
@@ -108,8 +111,11 @@ export default {
 				self.options__room_type.push({'value':item.d_id,'text':item.d_name}); 
 			});
 			self.options__status = data['dic_status'];
+			
+			self.$Progress.finish();
 		}).catch(({response})=>{
-			console.error(response.data)
+			console.error(response.data);
+			self.$Progress.fail();
 		});
 	},
 	methods: {
@@ -122,20 +128,41 @@ export default {
 			this.items.splice(index, 1);
 		},
 		Save(index){
-			const item = this.items[index];
-			this.$Progress.start();
-			axios.post('api/save', {item}).then(({data})=>{
+			const self = this;
+			const item = self.items[index];
+			
+			if( self.cancelToken[index] !== undefined ){
+				self.cancelToken[index].cancel(); 
+			}
+			self.cancelToken[index] = axios.CancelToken.source();  
+			
+			self.$Progress.start();
+			axios.post('/api/save', {item}, {cancelToken: self.cancelToken[index].token}).then(({data})=>{
 				if( data.errors && data.errors.length ){
-					
+					self.$bvToast.toast(data.errors, {
+					  title: 'Error',
+					  variant: 'danger',
+					  solid: true
+					});
 				}
 				else{
 					item.cost = data.cost;
 					item.price = data.price;
 				}
-				this.$Progress.finish();
-			}).catch(({response})=>{
-				console.error(response.data);
-				this.$Progress.fail();
+				
+				self.$Progress.finish();
+			}).catch((err)=>{
+				if (axios.isCancel(err)) return;
+				
+				console.error(err);
+				
+				self.$bvToast.toast(err.response.data, {
+				  title: 'Error',
+				  variant: 'danger',
+				  solid: true
+				});
+				
+				self.$Progress.fail();
 			});
 		},
 	}
