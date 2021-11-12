@@ -66,9 +66,6 @@ export default {
 		'item.room_type': {
 			handler: 'changeData'
 		},
-		'item.acc_id': {
-			handler: 'changeData'
-		},
 	},
 	mounted() {
 		const self = this;
