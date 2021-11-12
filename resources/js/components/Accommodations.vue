@@ -134,13 +134,15 @@ export default {
 			if( self.cancelToken[index] !== undefined ){
 				self.cancelToken[index].cancel(); 
 			}
-			self.cancelToken[index] = axios.CancelToken.source();  
+			self.cancelToken[index] = axios.CancelToken.source();
 			
-			item.cost = '';
-			item.price = '';
+			self.$bvToast.hide();
 			
 			self.$Progress.start();
 			axios.post('/api/save', {item}, {cancelToken: self.cancelToken[index].token}).then(({data})=>{
+				item.cost = '';
+				item.price = '';
+				
 				if( data.errors && data.errors.length ){
 					self.$bvToast.toast(data.errors, {
 					  title: 'Error',

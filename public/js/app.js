@@ -57210,12 +57210,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			}
 			self.cancelToken[index] = __WEBPACK_IMPORTED_MODULE_0_axios___default.a.CancelToken.source();
 
-			item.cost = '';
-			item.price = '';
+			self.$bvToast.hide();
 
 			self.$Progress.start();
 			__WEBPACK_IMPORTED_MODULE_0_axios___default.a.post('/api/save', { item: item }, { cancelToken: self.cancelToken[index].token }).then(function (_ref3) {
 				var data = _ref3.data;
+
+				item.cost = '';
+				item.price = '';
 
 				if (data.errors && data.errors.length) {
 					self.$bvToast.toast(data.errors, {
